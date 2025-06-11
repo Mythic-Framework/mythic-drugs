@@ -40,7 +40,7 @@ _DRUGS.Meth = {
     end,
     CreatePlacedTable = function(self, tableId, owner, tier, coords, heading, created)
         local tableData = self:GetTable(tableId)
-        local itemInfo = Inventory.Items:GetData(ableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table")
+        local itemInfo = Inventory.Items:GetData(tableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table")
 
         MySQL.insert.await("INSERT INTO placed_meth_tables (table_id, owner, placed, expires, coords, heading) VALUES(?, ?, ?, ?, ?, ?)", {
             tableId,
