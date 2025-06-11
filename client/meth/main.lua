@@ -236,68 +236,78 @@ end)
 
 AddEventHandler("Drugs:Client:Meth:ConfirmCook", function(data)
     if data ~= nil and _methTables[data.tableId] ~= nil and (not _methTables[data.tableId]?.cooldown or GetCloudTimeAsInt() > _methTables[data.tableId]?.cooldown) then
-        Progress:Progress({
-            name = "meth_pickup",
-            duration = 20 * 1000,
-            label = "Readying Ingredients",
-            useWhileDead = false,
-            canCancel = true,
-            ignoreModifier = true,
-            controlDisables = {
-                disableMovement = true,
-                disableCarMovement = true,
-                disableMouse = false,
-                disableCombat = true,
-            },
-            animation = {
-                anim = "dj",
-            },
-        }, function(status)
-            if not status then
-                Progress:Progress({
-                    name = "meth_pickup",
-                    duration = 20 * 1000,
-                    label = "Mixing Ingredients",
-                    useWhileDead = false,
-                    canCancel = true,
-                    ignoreModifier = true,
-                    controlDisables = {
-                        disableMovement = true,
-                        disableCarMovement = true,
-                        disableMouse = false,
-                        disableCombat = true,
-                    },
-                    animation = {
-                        anim = "dj",
-                    },
-                }, function(status)
-                    if not status then
-                        Progress:Progress({
-                            name = "meth_pickup",
-                            duration = 20 * 1000,
-                            label = "Starting Cooking Process",
-                            useWhileDead = false,
-                            canCancel = true,
-                            ignoreModifier = true,
-                            controlDisables = {
-                                disableMovement = true,
-                                disableCarMovement = true,
-                                disableMouse = false,
-                                disableCombat = true,
-                            },
-                            animation = {
-                                anim = "dj",
-                            },
-                        }, function(status)
-                            if not status then
-                                Callbacks:ServerCallback("Drugs:Meth:StartCooking", data, function(s)
-                
-                                end)
-                            end
-                        end)
-                    end
-                end)
-            end
+        local HasAcetone = Inventory.Check.Player:HasItem("acetone", data.ingredients[1])
+        local HasBacid = Inventory.Check.Player:HasItem("battery_acid", data.ingredients[2])
+        local HasCrystals = Inventory.Check.Player:HasItem("iodine_crystals", data.ingredients[3])
+        if not HasAcetone or not HasBacid or not HasCrystals then
+            Notification:Error("You Do Not Have All The Ingredients")
+            return
+        end
+
+        Callbacks:ServerCallback("Drugs:Meth:Ingredients", data, function(s)
+            Progress:Progress({
+                name = "meth_pickup",
+                duration = 20 * 1000,
+                label = "Readying Ingredients",
+                useWhileDead = false,
+                canCancel = true,
+                ignoreModifier = true,
+                controlDisables = {
+                    disableMovement = true,
+                    disableCarMovement = true,
+                    disableMouse = false,
+                    disableCombat = true,
+                },
+                animation = {
+                    anim = "dj",
+                },
+            }, function(status)
+                if not status then
+                    Progress:Progress({
+                        name = "meth_pickup",
+                        duration = 20 * 1000,
+                        label = "Mixing Ingredients",
+                        useWhileDead = false,
+                        canCancel = true,
+                        ignoreModifier = true,
+                        controlDisables = {
+                            disableMovement = true,
+                            disableCarMovement = true,
+                            disableMouse = false,
+                            disableCombat = true,
+                        },
+                        animation = {
+                            anim = "dj",
+                        },
+                    }, function(status)
+                        if not status then
+                            Progress:Progress({
+                                name = "meth_pickup",
+                                duration = 20 * 1000,
+                                label = "Starting Cooking Process",
+                                useWhileDead = false,
+                                canCancel = true,
+                                ignoreModifier = true,
+                                controlDisables = {
+                                    disableMovement = true,
+                                    disableCarMovement = true,
+                                    disableMouse = false,
+                                    disableCombat = true,
+                                },
+                                animation = {
+                                    anim = "dj",
+                                },
+                            }, function(status)
+                                if not status then
+                                    Callbacks:ServerCallback("Drugs:Meth:StartCooking", data, function(s)
+                    
+                                    end)
+                                end
+                            end)
+                        end
+                    end)
+                end
+            end)
         end)
     end
 end)
