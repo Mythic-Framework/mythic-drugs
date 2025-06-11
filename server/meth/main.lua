@@ -203,6 +203,54 @@ AddEventHandler("Drugs:Server:Startup", function()
         end
     end)
 
+    Callbacks:RegisterServerCallback("Drugs:Meth:Ingredients", function(source, data, cb)
+        -- Check if have items, Remove Items cb true or false for args
+        local plyr = Fetch:Source(source)
+        if plyr ~= nil then
+            local char = plyr:GetData("Character")
+            if char ~= nil then
+                if data and _placedTables[data.tableId] ~= nil then
+                    local hasAllIngredients = true -- Assume they have all ingredients initially
+
+                    -- Check if the player has all ingredients first
+                    if not Inventory.Items:Has(char:GetData('SID'), 1, "acetone", data.ingredients[1]) then
+                        hasAllIngredients = false
+                    end
+                    if not Inventory.Items:Has(char:GetData('SID'), 1, "battery_acid", data.ingredients[2]) then
+                        hasAllIngredients = false
+                    end
+                    if not Inventory.Items:Has(char:GetData('SID'), 1, "iodine_crystals", data.ingredients[3]) then
+                        hasAllIngredients = false
+                    end
+
+                    -- If the player has all ingredients, remove them
+                    if hasAllIngredients then
+                        local removed1 = Inventory.Items:Remove(char:GetData('SID'), 1, "acetone", data.ingredients[1])
+                        local removed2 = Inventory.Items:Remove(char:GetData('SID'), 1, "battery_acid", data.ingredients[2])
+                        local removed3 = Inventory.Items:Remove(char:GetData('SID'), 1, "iodine_crystals", data.ingredients[3])
+
+                        -- Ensure that all items were successfully removed
+                        if removed1 and removed2 and removed3 then
+                            cb(true)
+                        else
+                            Execute:Client(source, "Notification", "Error", "Failed to remove items")
+                            cb(false)
+                        end
+                    else
+                        Execute:Client(source, "Notification", "Error", "Not enough ingredients")
+                        cb(false)
+                    end
+                else
+                    cb(false)
+                end
+            else
+                cb(false)
+            end
+        else
+            cb(false)
+        end
+    end)
+
     Callbacks:RegisterServerCallback("Drugs:Meth:StartCooking", function(source, data, cb)
         local plyr = Fetch:Source(source)
         if plyr ~= nil then
