@@ -171,7 +171,7 @@ AddEventHandler("Drugs:Server:Startup", function()
                     if Drugs.Meth:IsTablePlaced(data) then
                         local tableData = Drugs.Meth:GetTable(data)
                         if Drugs.Meth:RemovePlacedTable(data) then
-                            if Inventory:AddItem(char:GetData("SID"), ableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table", 1, { MethTable = data }, 1, false, false, false, false, false, tableData.created, false) then
+                            if Inventory:AddItem(char:GetData("SID"), tableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table", 1, { MethTable = data }, 1, false, false, false, false, false, tableData.created, false) then
                                 cb(true)
                             else
                                 cb(false)
