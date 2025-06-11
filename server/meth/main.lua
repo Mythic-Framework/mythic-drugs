@@ -221,17 +221,25 @@ AddEventHandler("Drugs:Server:Startup", function()
             local char = plyr:GetData("Character")
             if char ~= nil then
                 if data and _placedTables[data.tableId] ~= nil then
-                    for index in pairs(data.ingredients) do
-                        local amount = data.ingredients[index]
+                    local total = 0
+                    for index, amount in pairs(data.ingredients) do
+                        total = total + amount
+                        -- local amount = data.ingredients[index]
                         local item = ingredientItems[index]
-                        if not Inventory.Items:Has(char:GetData('SID'), 1, item, amount) then
+
+                        if total == 0 then
+                            Execute:Client(source, "Notification", "Error", "You didn't add any ingredients")
+                            return cb(false)
+                        end
+                        if amount > 0 and not Inventory.Items:Has(char:GetData('SID'), 1, item, amount) then
                             Execute:Client(source, "Notification", "Error", "Not enough ingredients")
                             return cb(false)
                         end
-                        if not Inventory.Items:Remove(char:GetData('SID'), 1, item, amount) then
+                        if amount > 0 and not Inventory.Items:Remove(char:GetData('SID'), 1, item, amount) then
                             Execute:Client(source, "Notification", "Error", "Failed to remove items")
                             return cb(false)
                         end
+
                         return cb(true)
                     end
                 else
