@@ -6,6 +6,17 @@ local _toolsForSale = {
 	{ id = 1, item = "meth_table", coin = "PLEB", price = 400, qty = 5, vpn = true },
 }
 
+local ingredientItems = { -- dont touch this it'll break the script
+    'acetone',
+    'battery_acid',
+    'iodine_crystals',
+    'sulfuric_acid',
+    'phosphorous',
+    'gasoline',
+    'lithium',
+    'anhydrous_ammonia',
+}
+
 _DRUGS = _DRUGS or {}
 _DRUGS.Meth = {
     GenerateTable = function(self, tier)
@@ -159,7 +170,7 @@ AddEventHandler("Drugs:Server:Startup", function()
                     if Drugs.Meth:IsTablePlaced(data) then
                         local tableData = Drugs.Meth:GetTable(data)
                         if Drugs.Meth:RemovePlacedTable(data) then
-                            if Inventory:AddItem(char:GetData("SID"), "meth_table", 1, { MethTable = data }, 1, false, false, false, false, false, tableData.created, false) then
+                            if Inventory:AddItem(char:GetData("SID"), ableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table", 1, { MethTable = data }, 1, false, false, false, false, false, tableData.created, false) then
                                 cb(true)
                             else
                                 cb(false)
@@ -204,41 +215,23 @@ AddEventHandler("Drugs:Server:Startup", function()
     end)
 
     Callbacks:RegisterServerCallback("Drugs:Meth:Ingredients", function(source, data, cb)
-        -- Check if have items, Remove Items cb true or false for args
         local plyr = Fetch:Source(source)
         if plyr ~= nil then
             local char = plyr:GetData("Character")
             if char ~= nil then
                 if data and _placedTables[data.tableId] ~= nil then
-                    local hasAllIngredients = true -- Assume they have all ingredients initially
-
-                    -- Check if the player has all ingredients first
-                    if not Inventory.Items:Has(char:GetData('SID'), 1, "acetone", data.ingredients[1]) then
-                        hasAllIngredients = false
-                    end
-                    if not Inventory.Items:Has(char:GetData('SID'), 1, "battery_acid", data.ingredients[2]) then
-                        hasAllIngredients = false
-                    end
-                    if not Inventory.Items:Has(char:GetData('SID'), 1, "iodine_crystals", data.ingredients[3]) then
-                        hasAllIngredients = false
-                    end
-
-                    -- If the player has all ingredients, remove them
-                    if hasAllIngredients then
-                        local removed1 = Inventory.Items:Remove(char:GetData('SID'), 1, "acetone", data.ingredients[1])
-                        local removed2 = Inventory.Items:Remove(char:GetData('SID'), 1, "battery_acid", data.ingredients[2])
-                        local removed3 = Inventory.Items:Remove(char:GetData('SID'), 1, "iodine_crystals", data.ingredients[3])
-
-                        -- Ensure that all items were successfully removed
-                        if removed1 and removed2 and removed3 then
-                            cb(true)
-                        else
-                            Execute:Client(source, "Notification", "Error", "Failed to remove items")
-                            cb(false)
+                    for index in pairs(data.ingredients) do
+                        local amount = data.ingredients[index]
+                        local item = ingredientItems[index]
+                        if not Inventory.Items:Has(char:GetData('SID'), 1, item, amount) then
+                            Execute:Client(source, "Notification", "Error", "Not enough ingredients")
+                            return cb(false)
                         end
-                    else
-                        Execute:Client(source, "Notification", "Error", "Not enough ingredients")
-                        cb(false)
+                        if not Inventory.Items:Remove(char:GetData('SID'), 1, item, amount) then
+                            Execute:Client(source, "Notification", "Error", "Failed to remove items")
+                            return cb(false)
+                        end
+                        return cb(true)
                     end
                 else
                     cb(false)
