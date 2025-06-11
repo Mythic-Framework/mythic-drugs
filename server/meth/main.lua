@@ -38,8 +38,8 @@ _DRUGS.Meth = {
         return MySQL.single.await('SELECT COUNT(table_id) as Count FROM placed_meth_tables WHERE table_id = ?', { tableId })?.Count or 0 > 0
     end,
     CreatePlacedTable = function(self, tableId, owner, tier, coords, heading, created)
-        local itemInfo = Inventory.Items:GetData("meth_table")
         local tableData = self:GetTable(tableId)
+        local itemInfo = Inventory.Items:GetData(ableData.tier == 1 and "meth_table" or tableData.tier == 2 and "adv_meth_table")
 
         MySQL.insert.await("INSERT INTO placed_meth_tables (table_id, owner, placed, expires, coords, heading) VALUES(?, ?, ?, ?, ?, ?)", {
             tableId,
