@@ -4,6 +4,7 @@ _inProgCooks = {}
 local bought = {}
 local _toolsForSale = {
 	{ id = 1, item = "meth_table", coin = "PLEB", price = 400, qty = 5, vpn = true },
+    { id = 2, item = "adv_meth_table", coin = "PLEB", price = 800, qty = 5, vpn = true },
 }
 
 local ingredientItems = { -- dont touch this it'll break the script
